@@ -1,0 +1,26 @@
+# OMAHCODE - Apache / OpenLiteSpeed Configuration
+
+# Disable Directory Browsing
+Options -Indexes
+
+# Follow Symbolic Links
+Options +FollowSymLinks
+
+# Deny access to sensitive files and directories
+<FilesMatch "^\.env|^\.git|composer\.(json|lock)|package\.(json|lock)|\.sql$|\.sqlite$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Content-Type-Options "nosniff"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Mod Rewrite (if enabled)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+</IfModule>
