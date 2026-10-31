@@ -28,7 +28,9 @@ function load_env_file($path) {
                 $value = substr($value, 1, -1);
             }
             if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
-                putenv(sprintf('%s=%s', $name, $value));
+                if (function_exists('putenv')) {
+                    @putenv(sprintf('%s=%s', $name, $value));
+                }
                 $_ENV[$name] = $value;
                 $_SERVER[$name] = $value;
             }
@@ -39,8 +41,19 @@ function load_env_file($path) {
 load_env_file(ROOT_PATH . '/.env');
 
 function env($key, $default = null) {
-    $val = getenv($key);
-    if ($val === false) {
+    $val = null;
+    if (array_key_exists($key, $_ENV)) {
+        $val = $_ENV[$key];
+    } elseif (array_key_exists($key, $_SERVER)) {
+        $val = $_SERVER[$key];
+    } elseif (function_exists('getenv')) {
+        $g = @getenv($key);
+        if ($g !== false) {
+            $val = $g;
+        }
+    }
+
+    if ($val === null || $val === false) {
         return $default;
     }
     if ($val === 'true') return true;
